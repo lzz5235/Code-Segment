@@ -1,0 +1,62 @@
+一个重要的内建类型是string。赋值字符串的例子：
+s := "Hello World ! "
+字符串在Go 中是UTF-8 的由双引号（”）包裹的字符序列。如果你使用单引号（’）则
+表示一个字符（UTF-8 编码）——这种在Go 中不是string。一旦给变量赋值，字符串就不能修改了：在Go 中字符串是不可变的。
+
+解决方案就是需要将string类型的字符串转换成数组类型。
+s := "hello"
+c := []rune(s) 
+c[0] = 'c' ..1
+s2 := s t r i n g (c) 
+fmt.Printf("%s\n", s2) 
+
+
+if err ! = nil
+{  
+	return err//必须同if 在同一行
+}
+
+go语言可以平行赋值。
+// Reverse a
+for i, j := 0, len(a)-1 ; i < j ; i, j = i+1, j-1 {
+	a[i], a[j] = a[j], a[i]  //平行赋值
+}
+
+break 终止当前的循环。循环嵌套循环时，可以在break 后指定标签。用标签决定哪个循环被终止：
+利用continue 让循环进入下一个迭代，而略过剩下的所有代码。
+
+它不会匹配失败后自动向下尝试， 但是可以使用fallthrough 使其这样做。没有fallthrough：
+
+switch i {
+case 0: // 空的case 体
+case 1:
+f() // 当i == 0 时，f 不会被调用！
+}
+而这样：
+switch i {
+	case 0: fallthrough
+	case 1:
+	f() // 当i == 0 时，f 会被调用！
+}
+
+slice与array不同点在于slice是一种引用类型，传入函数体，可以对值修改。array传入函数是值拷贝！
+
+给定一个array 或者其他slice，一个新slice 通过a[I:J] 的方式创建。这会创建一个新的slice，指向变量a，从序号I开始，结束在序号J 之前。长度为J - I。
+
+a:= [...] int{1, 2, 3, 4, 5} // array[n:m] 从array 创建了一个slice，具有元素n 到m-1
+s1:=a[2:4]
+
+函数append 向slice s 追加零值或其他x 值，并且返回追加后的新的、与s有相同类型的slice。如果s 没有足够的容量存储追加的值，append 分配一个足够大的、新的slice 来存放原有slice 的元素和追加的值。因此，返回
+的slice 可能指向不同的底层array。最好有返回值，返回新的slice。
+
+func main() { 
+	var array [100]int //  Create array, index from 0 to 99 4
+	slice := array[0:99]  // Create slice, index from 0 to 98 5
+	slice[98] = 'a'  // OK 7
+	slice[99] = 'a'  // Error: ”throw: index out of range” 8
+}
+
+for k,v:=range s{}
+k v是个键值对，k int ，v 是s里面存的类型
+
+
