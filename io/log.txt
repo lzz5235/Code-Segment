@@ -1,0 +1,17 @@
+#include<stdio.h>
+int main()
+{
+/*	int a[5]={5,4,3,2,1};
+	int *p = a;
+	printf("%d\n", *(p+ 4));
+	printf("%d\n", *((int *)p+ 4));
+	*/
+	int a =1,b=2,c=0;
+	asm("addl %2,%0"
+			:"=g"(c)
+			:"r"(a),"g"(b)
+			:"memory"
+			);
+	printf("c=%d\n",c);
+	return 0;
+}

